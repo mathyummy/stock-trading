@@ -22,11 +22,11 @@
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .flash-up { animation: flashRed 0.5s ease-out; }
         .flash-down { animation: flashGreen 0.5s ease-out; }
-        @keyframes flashRed { 0% { background-color: rgba(255, 51, 51, 0.4); } 100% { background-color: transparent; } }
-        @keyframes flashGreen { 0% { background-color: rgba(0, 170, 0, 0.4); } 100% { background-color: transparent; } }
+        @keyframes flashRed { 0% { background-color: rgba(255, 51, 51, 0.5); } 100% { background-color: transparent; } }
+        @keyframes flashGreen { 0% { background-color: rgba(0, 170, 0, 0.5); } 100% { background-color: transparent; } }
         
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 50; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; }
-        .toast { background-color: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; animation: fadeInOut 3s forwards; }
+        .toast { background-color: rgba(0, 0, 0, 0.85); color: white; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; animation: fadeInOut 3s forwards; border: 1px solid #475569; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
@@ -38,7 +38,7 @@
     <!-- 啟動設定畫面 -->
     <div id="setup-screen" class="bg-tw-panel p-8 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
         <h1 class="text-3xl font-bold text-center mb-6 text-blue-400">📊 股市大富翁</h1>
-        <p class="text-gray-400 text-center mb-8 text-sm">請設定您的初始條件，體驗真實市場的波動與交易成本。</p>
+        <p class="text-gray-400 text-center mb-8 text-sm">請設定初始條件，遊戲中請聽從老師指示點擊突發新聞。</p>
         
         <div class="mb-6">
             <h2 class="text-lg font-semibold mb-3">1. 選擇初始資金</h2>
@@ -52,20 +52,49 @@
 
         <div class="mb-8">
             <h2 class="text-lg font-semibold mb-3">2. 選擇交易時間</h2>
-            <div class="grid grid-cols-2 gap-3" id="time-options">
-                <button onclick="selectTime(3, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">3 分鐘 (極速當沖)</button>
-                <button onclick="selectTime(5, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">5 分鐘 (短線交易)</button>
-                <button onclick="selectTime(10, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">10 分鐘 (波段操作)</button>
-                <button onclick="selectTime(15, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">15 分鐘 (長期投資)</button>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="time-options">
+                <button onclick="selectTime(2, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">2 分鐘 (極限)</button>
+                <button onclick="selectTime(3, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">3 分鐘 (當沖)</button>
+                <button onclick="selectTime(5, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">5 分鐘 (短線)</button>
+                <button onclick="selectTime(10, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">10 分鐘 (波段)</button>
+                <button onclick="selectTime(15, this)" class="time-btn py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition">15 分鐘 (長期)</button>
             </div>
         </div>
 
-        <button onclick="startGame()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg text-lg transition shadow-lg">開始挑戰 🚀</button>
+        <button onclick="startGame()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg text-lg transition shadow-lg">進入交易市場 🚀</button>
     </div>
 
     <!-- 遊戲主畫面 -->
     <div id="game-screen" class="hidden w-full max-w-5xl flex flex-col gap-4">
         
+        <!-- 盤中新聞控制台 (學生點擊區) -->
+        <div class="bg-gray-800 rounded-xl p-3 border border-yellow-600/50 shadow-lg flex flex-col items-start gap-3">
+            <div class="text-yellow-400 font-bold text-sm whitespace-nowrap flex items-center gap-2">
+                <span class="animate-pulse">📻</span> 老師廣播指示 (請依據老師指令點選)：
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
+                <!-- 新增了 scenario-btn 類別與 btn-xxx ID，並將 normal 設為預設亮起 -->
+                <button id="btn-normal" onclick="triggerEvent('normal')" class="scenario-btn ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-800 scale-[1.02] z-10 bg-gray-700 hover:bg-gray-600 border border-gray-500 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    ☕ 恢復平穩日常
+                </button>
+                <button id="btn-tech_boom" onclick="triggerEvent('tech_boom')" class="scenario-btn bg-red-900/50 hover:bg-tw-up border border-tw-up/50 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    🚀 AI 科技大爆發
+                </button>
+                <button id="btn-war_crisis" onclick="triggerEvent('war_crisis')" class="scenario-btn bg-green-900/50 hover:bg-tw-down border border-tw-down/50 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    💣 地緣政治戰爭
+                </button>
+                <button id="btn-rate_hike" onclick="triggerEvent('rate_hike')" class="scenario-btn bg-green-900/50 hover:bg-tw-down border border-tw-down/50 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    📉 央行強力升息
+                </button>
+                <button id="btn-pandemic" onclick="triggerEvent('pandemic')" class="scenario-btn bg-gray-700 hover:bg-gray-600 border border-gray-400 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    🦠 全球疫情爆發
+                </button>
+                <button id="btn-value_recovery" onclick="triggerEvent('value_recovery')" class="scenario-btn bg-red-900/50 hover:bg-tw-up border border-tw-up/50 text-white text-xs font-bold py-2 px-2 rounded transition relative">
+                    🏭 傳統產業復甦
+                </button>
+            </div>
+        </div>
+
         <!-- 頂部資訊列 -->
         <div class="bg-tw-panel rounded-xl p-4 flex flex-wrap justify-between items-center shadow-lg border border-gray-700">
             <div class="flex items-center gap-4">
@@ -90,7 +119,7 @@
     </div>
 
     <!-- 結束畫面 -->
-    <div id="end-screen" class="hidden bg-tw-panel p-8 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 text-center">
+    <div id="end-screen" class="hidden bg-tw-panel p-8 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 text-center mx-auto">
         <h1 class="text-4xl font-bold mb-4 text-white">結算報告 📜</h1>
         <p class="text-gray-400 mb-6">市場收盤，系統已自動為您平倉結算。</p>
         
@@ -113,19 +142,17 @@
             initialCapital: 0,
             timeRemaining: 0,
             assets: {
-                A: { name: '台積電 (2330)', desc: '高風險 / 科技權值 (證交稅 0.3%)', price: 2250, initialPrice: 2250, shares: 0, avgCost: 0, vol: 0.03, type: 'int', taxRate: 0.003 },
-                B: { name: '0050', desc: '中風險 / 市值型 ETF (證交稅 0.1%)', price: 155, initialPrice: 155, shares: 0, avgCost: 0, vol: 0.015, type: 'int', taxRate: 0.001 },
-                C: { name: '00679B', desc: '低風險 / 防禦型美債 (免交易稅)', price: 29.5, initialPrice: 29.5, shares: 0, avgCost: 0, vol: 0.002, type: 'float', taxRate: 0 }
+                A: { name: '台積電 (2330)', desc: '高風險 / 科技權值 (證交稅 0.3%)', price: 2250, initialPrice: 2250, shares: 0, avgCost: 0, defaultVol: 0.03, vol: 0.03, drift: 0, type: 'int', taxRate: 0.003 },
+                B: { name: '0050', desc: '中風險 / 市值型 ETF (證交稅 0.1%)', price: 155, initialPrice: 155, shares: 0, avgCost: 0, defaultVol: 0.015, vol: 0.015, drift: 0, type: 'int', taxRate: 0.001 },
+                C: { name: '00679B', desc: '低風險 / 防禦型美債 (免交易稅)', price: 29.5, initialPrice: 29.5, shares: 0, avgCost: 0, defaultVol: 0.002, vol: 0.002, drift: 0, type: 'float', taxRate: 0 }
             },
             gameInterval: null,
             tickInterval: null,
             feeRate: 0.001425 // 券商手續費 0.1425%
         };
 
-        // 格式化數字
         const fmt = (num) => new Intl.NumberFormat('zh-TW').format(num);
 
-        // UI 互動 - 選擇按鈕
         function selectCapital(val, btn) {
             config.capital = val;
             document.querySelectorAll('.cap-btn').forEach(el => { el.classList.remove('bg-blue-600', 'text-white', 'border-blue-400'); el.classList.add('border-gray-600'); });
@@ -140,17 +167,15 @@
             btn.classList.remove('border-gray-600');
         }
 
-        // 浮動提示框 (Toast)
-        function showToast(message) {
+        function showToast(message, colorClass = '') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast';
+            toast.className = `toast ${colorClass}`;
             toast.innerText = message;
             container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 3000);
+            setTimeout(() => { toast.remove(); }, 4000);
         }
 
-        // 初始化遊戲與生成卡片 UI
         function startGame() {
             if (!config.capital || !config.time) {
                 alert('請先選擇初始資金與交易時間！'); return;
@@ -159,17 +184,16 @@
             state.initialCapital = config.capital;
             state.cash = config.capital;
             state.timeRemaining = config.time * 60;
-            
+
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
 
             const container = document.getElementById('assets-container');
-            container.innerHTML = ''; // 清空
+            container.innerHTML = ''; 
 
             ['A', 'B', 'C'].forEach(assetKey => {
                 let obj = state.assets[assetKey];
                 
-                // 修正了引號閉合方式，使用雙引號包覆 onClick 事件內的字串參數
                 let cardHTML = `
                 <div class="bg-tw-panel rounded-xl flex flex-col shadow-lg overflow-hidden border border-gray-700" id="card-${assetKey}">
                     <div class="p-4 border-b border-gray-700 bg-gray-800/50 flex justify-between items-center transition-colors duration-300" id="card-header-${assetKey}">
@@ -223,49 +247,115 @@
 
             updateUI();
             
-            // 啟動計時器 (每秒更新時間)
             state.gameInterval = setInterval(() => {
                 state.timeRemaining--;
                 let m = Math.floor(state.timeRemaining / 60).toString().padStart(2, '0');
                 let s = (state.timeRemaining % 60).toString().padStart(2, '0');
                 document.getElementById('timer').innerText = `${m}:${s}`;
-                
                 if (state.timeRemaining <= 0) endGame();
             }, 1000);
 
-            // 啟動跳動引擎 (每2.5秒跳動一次價格)
-            state.tickInterval = setInterval(tickPrices, 2500);
+            state.tickInterval = setInterval(() => tickPrices(false), 2500);
         }
 
-        // 價格跳動邏輯
-        function tickPrices() {
+        // 盤中事件觸發引擎：產生瞬間衝擊 (Shock) 與後續趨勢 (Drift)
+        function triggerEvent(scenario) {
+            // UI 更新：處理按鈕高亮狀態
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-yellow-400', 'ring-offset-2', 'ring-offset-gray-800', 'scale-[1.02]', 'z-10');
+            });
+            let activeBtn = document.getElementById(`btn-${scenario}`);
+            if(activeBtn) {
+                activeBtn.classList.add('ring-2', 'ring-yellow-400', 'ring-offset-2', 'ring-offset-gray-800', 'scale-[1.02]', 'z-10');
+            }
+
+            let A = state.assets.A;
+            let B = state.assets.B;
+            let C = state.assets.C;
+
+            if (scenario === 'tech_boom') {
+                showToast("重大新聞發布：AI 科技取得重大突破！科技股狂飆！", "!bg-tw-up !border-red-400");
+                A.price = Math.round(A.price * 1.15); 
+                B.price = Math.round(B.price * 1.05); 
+                C.price = parseFloat((C.price * 0.98).toFixed(1)); 
+                A.vol = A.defaultVol * 1.5; A.drift = 0.006; 
+                B.drift = 0.002;
+                C.drift = -0.0005;
+
+            } else if (scenario === 'war_crisis') {
+                showToast("重大新聞發布：地緣政治衝突爆發！市場極度恐慌！", "!bg-tw-down !border-green-400");
+                A.price = Math.round(A.price * 0.85); 
+                B.price = Math.round(B.price * 0.90); 
+                C.price = parseFloat((C.price * 1.08).toFixed(1)); 
+                A.vol = A.defaultVol * 2.0; A.drift = -0.008; 
+                B.drift = -0.004;
+                C.vol = C.defaultVol * 3; C.drift = 0.002;
+
+            } else if (scenario === 'rate_hike') {
+                showToast("重大新聞發布：央行宣布強力升息！資金退潮，股債雙殺！", "!bg-tw-down !border-green-400");
+                // 升息不利所有資產，尤其是高估值科技股和債券價格
+                A.price = Math.round(A.price * 0.92); 
+                B.price = Math.round(B.price * 0.95); 
+                C.price = parseFloat((C.price * 0.96).toFixed(1)); 
+                A.drift = -0.003; 
+                B.drift = -0.001;
+                C.drift = -0.001;
+
+            } else if (scenario === 'pandemic') {
+                showToast("重大新聞發布：全球未知疫情擴散！遠距需求大增，百業蕭條！", "!border-gray-400");
+                // 疫情：科技(遠距)漲，大盤(實體)跌，債券(避險/降息預期)漲
+                A.price = Math.round(A.price * 1.08); 
+                B.price = Math.round(B.price * 0.90); 
+                C.price = parseFloat((C.price * 1.05).toFixed(1)); 
+                A.drift = 0.003; 
+                B.drift = -0.005;
+                C.drift = 0.001;
+
+            } else if (scenario === 'value_recovery') {
+                showToast("重大新聞發布：傳統產業迎來大復甦！資金從科技股輪動至大盤！", "!bg-tw-up !border-red-400");
+                // 傳產復甦：科技股資金被抽走，0050(包含金融傳產)大漲
+                A.price = Math.round(A.price * 0.96); 
+                B.price = Math.round(B.price * 1.08); 
+                C.price = parseFloat((C.price * 0.99).toFixed(1)); 
+                A.drift = -0.001; 
+                B.drift = 0.004;
+                C.drift = 0;
+
+            } else {
+                showToast("市場快訊：危機解除，市場回歸平穩日常。");
+                A.vol = A.defaultVol; A.drift = 0;
+                B.vol = B.defaultVol; B.drift = 0;
+                C.vol = C.defaultVol; C.drift = 0;
+            }
+
+            // 強制立即更新畫面以反映價格衝擊
+            tickPrices(true);
+        }
+
+        // 價格跳動邏輯 (forceUIUpdate 參數用於事件發生時的強制刷新)
+        function tickPrices(forceUIUpdate = false) {
             ['A', 'B', 'C'].forEach(assetKey => {
                 let obj = state.assets[assetKey];
                 let oldPrice = obj.price;
                 
-                // 產生隨機波動 (常態分配模擬)
-                let rand = (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2;
-                let changePercent = rand * obj.vol; 
-                let newPrice = oldPrice * (1 + changePercent);
-                
-                // 依照台股規則進位
-                obj.price = obj.type === 'int' ? Math.round(newPrice) : parseFloat(newPrice.toFixed(1));
-                
-                // 防止股價歸零或變負
-                if (obj.price <= 0.1) obj.price = obj.type === 'int' ? 1 : 0.1;
+                if (!forceUIUpdate) {
+                    let rand = (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2;
+                    let changePercent = (rand * obj.vol) + obj.drift;
+                    let newPrice = oldPrice * (1 + changePercent);
+                    obj.price = obj.type === 'int' ? Math.round(newPrice) : parseFloat(newPrice.toFixed(1));
+                    if (obj.price <= 0.1) obj.price = obj.type === 'int' ? 1 : 0.1;
+                }
 
-                // UI 更新：處理背景閃爍 (跟前一秒比)
                 let headerEl = document.getElementById(`card-header-${assetKey}`);
                 headerEl.classList.remove('flash-up', 'flash-down');
-                void headerEl.offsetWidth; // 觸發重繪
+                void headerEl.offsetWidth;
                 
-                if (obj.price > oldPrice) {
+                if (obj.price > oldPrice || (forceUIUpdate && obj.drift > 0)) {
                     headerEl.classList.add('flash-up');
-                } else if (obj.price < oldPrice) {
+                } else if (obj.price < oldPrice || (forceUIUpdate && obj.drift < 0)) {
                     headerEl.classList.add('flash-down');
                 }
 
-                // UI 更新：處理數字與漲跌幅顏色 (跟開盤價比)
                 let priceEl = document.getElementById(`price-${assetKey}`);
                 let changeEl = document.getElementById(`change-${assetKey}`);
                 
@@ -275,7 +365,6 @@
                 let sign = totalChangePercent >= 0 ? '+' : '';
                 changeEl.innerText = `${sign}${totalChangePercent.toFixed(2)}%`;
                 
-                // 紅漲綠跌 (與開盤價相比)
                 if (totalChangePercent > 0) {
                     priceEl.className = 'text-3xl font-bold font-mono text-tw-up';
                     changeEl.className = 'text-sm font-bold mt-1 text-tw-up';
@@ -295,7 +384,6 @@
             let obj = state.assets[assetKey];
             
             if (action === 'buy') {
-                // 計算購買力 (需預留手續費)
                 let maxShares = Math.floor(state.cash / (obj.price * (1 + state.feeRate)));
                 let qty = 0;
                 
@@ -315,7 +403,6 @@
                 let fee = Math.max(1, Math.floor(principal * state.feeRate));
                 let totalCost = principal + fee;
 
-                // 重新計算平均成本
                 let oldTotalCost = obj.shares * obj.avgCost;
                 obj.shares += qty;
                 obj.avgCost = (oldTotalCost + totalCost) / obj.shares;
@@ -341,10 +428,10 @@
                 let principal = qty * obj.price;
                 let fee = Math.max(1, Math.floor(principal * state.feeRate));
                 let tax = obj.taxRate > 0 ? Math.max(1, Math.floor(principal * obj.taxRate)) : 0;
-                let netProceeds = principal - fee - tax; // 實際拿回的錢
+                let netProceeds = principal - fee - tax; 
 
                 obj.shares -= qty;
-                if (obj.shares === 0) obj.avgCost = 0; // 清空成本
+                if (obj.shares === 0) obj.avgCost = 0; 
                 
                 state.cash += netProceeds;
                 showToast(`賣出 ${qty} 股 ${obj.name}，扣手續費 $${fmt(fee)} / 稅金 $${fmt(tax)}`);
@@ -353,14 +440,12 @@
             updateUI();
         }
 
-        // 更新全域 UI 與未實現損益
         function updateUI() {
             let totalStockValue = 0;
             
             ['A', 'B', 'C'].forEach(assetKey => {
                 let obj = state.assets[assetKey];
                 
-                // 計算「如果現在賣出」能拿回的真實淨額
                 let currentNetVal = 0;
                 if (obj.shares > 0) {
                     let principal = obj.shares * obj.price;
@@ -371,11 +456,9 @@
                 
                 totalStockValue += currentNetVal;
 
-                // 更新股數與平均成本 UI
                 document.getElementById(`shares-${assetKey}`).innerText = fmt(obj.shares);
                 document.getElementById(`cost-${assetKey}`).innerText = obj.type === 'int' ? fmt(Math.round(obj.avgCost)) : obj.avgCost.toFixed(2);
                 
-                // 計算未實現損益：預估賣出淨額 - 原始總成本
                 let totalCost = obj.avgCost * obj.shares;
                 let pnl = currentNetVal - totalCost;
                 
@@ -402,12 +485,10 @@
             roiEl.className = `text-sm font-bold mt-1 ${roi >= 0 ? 'text-tw-up' : 'text-tw-down'}`;
         }
 
-        // 遊戲結束結算
         function endGame() {
             clearInterval(state.gameInterval);
             clearInterval(state.tickInterval);
             
-            // 強制全部平倉 (變現)
             ['A', 'B', 'C'].forEach(assetKey => {
                 if(state.assets[assetKey].shares > 0) trade(assetKey, 'sell', 'all');
             });
@@ -416,7 +497,7 @@
             let endScreen = document.getElementById('end-screen');
             endScreen.classList.remove('hidden');
 
-            let finalNetWorth = state.cash; // 因為全部平倉了，現值等於現金
+            let finalNetWorth = state.cash; 
             let profit = finalNetWorth - state.initialCapital;
             let roi = (profit / state.initialCapital) * 100;
 
